@@ -8,22 +8,18 @@
 <style>
 :root {
     --bg: #0d1117;
-    --green: #00ff9c;
+    --green: #0aff0a;        /* darker green */
     --blue: #58a6ff;
     --gray: #8b949e;
-    --white: #c9d1d9;
+    --red: #ff4d4d;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin:0; padding:0; box-sizing:border-box; }
 
 body {
     background: var(--bg);
-    color: var(--green);
     font-family: "Courier New", monospace;
+    color: var(--green);
     height: 100vh;
     overflow: hidden;
 }
@@ -32,76 +28,105 @@ body {
     padding: 20px;
     height: 100vh;
     overflow-y: auto;
+    font-size: 15px;
 }
 
-.line {
-    margin-bottom: 6px;
-    white-space: pre-wrap;
-}
+.line { margin-bottom: 4px; white-space: pre-wrap; }
 
-.input-line {
-    display: flex;
-}
+.prompt { color: var(--blue); margin-right: 5px; }
 
-.prompt {
-    color: var(--blue);
-    margin-right: 5px;
-}
+.input-line { display: flex; }
 
 input {
     background: transparent;
     border: none;
+    outline: none;
     color: var(--green);
     font-family: inherit;
-    font-size: 16px;
+    font-size: 15px;
     width: 100%;
-    outline: none;
 }
 
-.section-title {
-    color: var(--blue);
-    margin-top: 15px;
-    margin-bottom: 5px;
-}
+.red { color: var(--red); }
+.green { color: var(--green); }
+.blue { color: var(--blue); }
+.gray { color: var(--gray); }
 
-.highlight {
-    color: var(--white);
-}
-
-@keyframes blink {
-    50% { opacity: 0; }
-}
-
-.cursor {
-    display: inline-block;
-    width: 8px;
-    background: var(--green);
-    animation: blink 1s infinite;
-}
 </style>
 </head>
 <body>
-
 <div id="terminal"></div>
 
 <script>
 const terminal = document.getElementById("terminal");
 
-const bootSequence = [
-    "Booting ShivangOS v1.0...",
-    "[ OK ] Initializing kernel modules",
-    "[ OK ] Mounting /dev/systems",
-    "[ OK ] Starting container runtime",
-    "[ OK ] Establishing secure channel",
-    "[ OK ] Loading DevOps personality",
-    "",
-    "Welcome to Shivang's Interactive Portfolio",
-    "Type 'help' to list available commands."
-];
+const user = "shivang";
+const hostname = "shivanggupta.in";
+let currentPath = "/home/shivang";
 
-function printLine(text = "") {
+let history = [];
+let historyIndex = -1;
+let topInterval = null;
+
+/* ---------------- FILE SYSTEM ---------------- */
+
+const fileSystem = {
+    "/": {
+        type: "dir",
+        protected: true,
+        children: ["bin","etc","usr","var","home"]
+    },
+    "/home": {
+        type: "dir",
+        children: ["shivang"]
+    },
+    "/home/shivang": {
+        type: "dir",
+        children: [
+            "about.txt",
+            "skills.txt",
+            "projects.txt",
+            "contact.txt"
+        ]
+    },
+    "about.txt": {
+        type: "file",
+        content: `Backend & DevOps Engineer.
+Deep into Linux internals, namespaces, containers,
+Kubernetes, AWS, distributed systems.
+Believes in first principles understanding.`
+    },
+    "skills.txt": {
+        type: "file",
+        content: `Linux Internals
+Docker / Containers
+Kubernetes
+AWS Architecture
+CI/CD
+Database Optimization
+Shell Automation`
+    },
+    "projects.txt": {
+        type: "file",
+        content: `Custom CI/CD pipelines
+Containerized microservices
+Infra automation
+TLS auditing tooling`
+    },
+    "contact.txt": {
+        type: "file",
+        content: `LinkedIn: linkedin.com/in/shivang21007
+GitHub: github.com/shivang21007
+Email: shivanggupta2611@gmail.com`
+    }
+};
+
+/* ---------------- PRINT UTILS ---------------- */
+
+function print(text="", cls="green") {
     const line = document.createElement("div");
     line.classList.add("line");
+    if (cls) line.classList.add(cls);
     line.textContent = text;
     terminal.appendChild(line);
     terminal.scrollTop = terminal.scrollHeight;
@@ -113,35 +138,30 @@ function createInput() {
 
     const prompt = document.createElement("span");
     prompt.classList.add("prompt");
-    prompt.textContent = "shivang@systems:~$";
+    prompt.textContent = `${user}@${hostname}:${currentPath}$`;
 
     const input = document.createElement("input");
-    input.autofocus = true;
 
     inputLine.appendChild(prompt);
     inputLine.appendChild(input);
     terminal.appendChild(inputLine);
 
     input.focus();
-
     input.addEventListener("keydown", handleCommand);
-
-    terminal.scrollTop = terminal.scrollHeight;
 }
 
-let history = [];
-let historyIndex = -1;
+/* ---------------- COMMAND HANDLER ---------------- */
 
 function handleCommand(e) {
     const input = e.target;
 
     if (e.key === "Enter") {
-        const command = input.value.trim();
-        history.push(command);
+        const cmd = input.value.trim();
+        history.push(cmd);
         historyIndex = history.length;
         input.parentElement.remove();
-        printLine("shivang@systems:~$ " + command);
-        execute(command);
+        print(`${user}@${hostname}:${currentPath}$ ${cmd}`);
+        execute(cmd);
     }
 
     if (e.key === "ArrowUp") {
@@ -161,71 +181,163 @@ function handleCommand(e) {
     }
 }
 
-function execute(command) {
-    switch(command.toLowerCase()) {
+/* ---------------- COMMAND EXECUTION ---------------- */
+
+function execute(input) {
+    if (topInterval) clearInterval(topInterval);
+
+    const args = input.split(" ");
+    const cmd = args[0];
+
+    switch(cmd) {
+
         case "help":
-            printLine("");
-            printLine("Available commands:");
-            printLine("  about      → Who I am");
-            printLine("  skills     → Technical stack");
-            printLine("  projects   → What I've built");
-            printLine("  contact    → How to reach me");
-            printLine("  clear      → Clear terminal");
+        case "ls":
+            listDirectory();
             break;
 
-        case "about":
-            printLine("");
-            printLine("Backend & DevOps Engineer.");
-            printLine("Deep into Linux internals, system design, process isolation,");
-            printLine("namespaces, networking, and distributed systems.");
-            printLine("Believes in first principles. No abstraction without understanding.");
+        case "pwd":
+            print(currentPath);
             break;
 
-        case "skills":
-            printLine("");
-            printLine("Core Expertise:");
-            printLine("- Linux Internals (process, memory, namespaces)");
-            printLine("- Docker / Container Runtime");
-            printLine("- Kubernetes (CKA path)");
-            printLine("- AWS Architecture");
-            printLine("- CI/CD Pipelines");
-            printLine("- Database Optimization");
-            printLine("- Shell Scripting & Automation");
-            break;
-
-        case "projects":
-            printLine("");
-            printLine("Highlighted Work:");
-            printLine("- Built custom CI/CD pipelines");
-            printLine("- Designed containerized microservices");
-            printLine("- Automated infrastructure provisioning");
-            printLine("- Deep dive tooling for TLS & network audits");
-            break;
-
-        case "contact":
-            printLine("");
-            printLine("Let's connect:");
-            printLine("LinkedIn: linkedin.com/in/shivang21007");
-            printLine("GitHub: github.com/shivang21007");
-            printLine("Email: shivanggupta2611@gmail.com");
+        case "cd":
+            changeDirectory(args[1]);
             break;
 
         case "clear":
             terminal.innerHTML = "";
             break;
 
+        case "whoami":
+        case "who":
+            print(user);
+            break;
+
+        case "hostname":
+            print(hostname);
+            break;
+
+        case "ifconfig":
+            print("lo: 127.0.0.1");
+            print(`eth0: ${hostname}`);
+            break;
+
+        case "df":
+            print(`Filesystem      Size  Used Avail Use% Mounted on`);
+            print(`/dev/sda1       50G   18G   30G  38% /`);
+            print(`/dev/sda2      200G  120G   80G  60% /home`);
+            break;
+
+        case "ps":
+            showPS(args);
+            break;
+
+        case "top":
+        case "htop":
+            runTop();
+            return;
+
+        case "about":
+        case "skills":
+        case "projects":
+        case "contact":
+            showTextFile(cmd + ".txt");
+            break;
+
+        case "":
+            break;
+
         default:
-            if (command !== "") {
-                printLine("Command not found. Type 'help'.");
-            }
+            print("Command not found", "red");
     }
 
     createInput();
 }
 
+/* ---------------- DIRECTORY FUNCTIONS ---------------- */
+
+function listDirectory() {
+    const dir = fileSystem[currentPath];
+    if (!dir || dir.type !== "dir") return;
+
+    dir.children.forEach(child => {
+        print(child, "blue");
+    });
+}
+
+function changeDirectory(target) {
+    if (!target) {
+        currentPath = "/home/shivang";
+        return;
+    }
+
+    if (target === "/") {
+        print("Permission denied", "red");
+        return;
+    }
+
+    let newPath;
+    if (target.startsWith("/")) newPath = target;
+    else newPath = currentPath + "/" + target;
+
+    if (fileSystem[newPath] && fileSystem[newPath].type === "dir") {
+        currentPath = newPath;
+    } else {
+        print("No such directory", "red");
+    }
+}
+
+function showTextFile(name) {
+    const file = fileSystem[name];
+    if (file && file.type === "file") {
+        file.content.split("\n").forEach(line => print(line));
+    } else {
+        print("File not found", "red");
+    }
+}
+
+/* ---------------- PROCESS SIMULATION ---------------- */
+
+function showPS(args) {
+    print("UID   PID  CMD");
+    print("root  1    init");
+    print("root  102  containerd");
+    print("shivang 231 node portfolio.js");
+    print("shivang 300 kubelet");
+}
+
+function runTop() {
+    print("top - ShivangOS monitor");
+    print("Press ENTER to exit\n");
+
+    let cpu = 5;
+    let mem = 20;
+
+    topInterval = setInterval(() => {
+        cpu = Math.floor(Math.random()*40)+5;
+        mem = Math.floor(Math.random()*60)+20;
+        print(`CPU: ${cpu}%  MEM: ${mem}%  PROC: 4`);
+    }, 1000);
+
+    createInput();
+}
+
+/* ---------------- BOOT SEQUENCE ---------------- */
+
 async function boot() {
-    for (let line of bootSequence) {
-        printLine(line);
+    const bootLogs = [
+        "Booting ShivangOS v2.0...",
+        "[ OK ] Loading kernel modules",
+        "[ OK ] Mounting virtual FS",
+        "[ OK ] Starting container runtime",
+        "[ OK ] Initializing namespaces",
+        "",
+        "Interactive portfolio ready.",
+        "Type 'help' to begin."
+    ];
+
+    for (let line of bootLogs) {
+        print(line);
         await new Promise(r => setTimeout(r, 400));
     }
     createInput();
@@ -233,6 +345,5 @@ async function boot() {
 
 boot();
 </script>
-
 </body>
 </html>

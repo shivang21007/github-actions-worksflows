@@ -1,0 +1,27 @@
+name: manual-click-cicd
+# workflow_dispatch means manual trigger required to run this workflow 
+on: 
+  workflow_dispatch:
+
+jobs:
+  code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: clone and checkout the code
+        run: echo "cloing the code and checking out the branch ....."
+  build: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: build the docker container
+        run: echo "building docker container ....."
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: testing the docker container
+        run: echo "testing the docker containers...."
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: deploy the build containers
+        run: echo "Deploying the docker containers ....."
+        

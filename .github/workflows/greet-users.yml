@@ -1,0 +1,20 @@
+name: Greet-on-Github-Actions
+
+on:
+  push:
+    branches: [main]
+    
+jobs:
+  greet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Say hello to user
+        run: echo "Hello $USER"
+        
+  details:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print OS Details
+        run: cat /etc/os-release
+      - name: Print kernal details
+        run: uname -a

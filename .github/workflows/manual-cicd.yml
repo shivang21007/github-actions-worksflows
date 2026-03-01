@@ -11,16 +11,19 @@ jobs:
         run: echo "cloing the code and checking out the branch ....."
   build: 
     runs-on: ubuntu-latest
+    needs: code
     steps:
       - name: build the docker container
         run: echo "building docker container ....."
   test:
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - name: testing the docker container
         run: echo "testing the docker containers...."
   deploy:
     runs-on: ubuntu-latest
+    needs: test
     steps:
       - name: deploy the build containers
         run: echo "Deploying the docker containers ....."

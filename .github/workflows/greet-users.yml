@@ -18,3 +18,17 @@ jobs:
         run: cat /etc/os-release
       - name: Print kernal details
         run: uname -a
+
+  date-time:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print uptime 
+        run: uptime
+      - name: Print date-time
+        run: date
+
+  all-process:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: print all process
+        run: ps -ef

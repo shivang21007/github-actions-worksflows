@@ -4,8 +4,7 @@ on:
   # run on any push on main branch
   push:
     branches: [main]
-    paths:
-      - '.github/workflows/greet-users.yml'
+
   # can be also run manually 
   workflow_dispatch: 
     

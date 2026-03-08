@@ -7,10 +7,13 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      # false - run all jobs even if one fails, true - stop all jobs if one fails
+      fail-fast: false 
       matrix:
-        fail-fast: false # false - run all jobs even if one fails, true - stop all jobs if one fails
-        os: [ubuntu-latest, macos-latest, windows-latest] # runs on each os
-        node-version: [18.x, 20.x, 22.x, 24.x] # runs on each node version
+        # runs on each os
+        os: [ubuntu-latest, macos-latest, windows-latest] 
+        # runs on each node version
+        node-version: [18.x, 20.x, 22.x, 24.x] 
 
     steps:
       - name: Checkout code

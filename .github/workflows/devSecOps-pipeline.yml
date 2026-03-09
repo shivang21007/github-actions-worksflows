@@ -1,0 +1,31 @@
+name: DevSecOps Deployment Pipeline
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+
+jobs:
+  code-quality-scan:
+    uses: ./.github/workflows/code-quality.yml
+
+  secrets-leak-scan:
+    uses: ./.github/workflows/secrets-scan.yml
+
+  code-dependency-scan:
+    uses: ./.github/workflows/dependency-scan.yml
+
+  docker-lint-check:
+    uses: ./.github/workflows/docker-linter.yml
+
+  docker-build-scan-push:
+    needs: [code-quality-scan, secrets-leak-scan, code-dependency-scan, docker-lint-check]
+    uses: ./.github/workflows/build-scan-push..yml
+
+  deploy-to-server:
+    needs: docker-build-scan-push
+    uses: ./.github/workflows/deploy-to-server.yml

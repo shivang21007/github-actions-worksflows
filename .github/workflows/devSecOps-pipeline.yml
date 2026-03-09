@@ -22,10 +22,14 @@ jobs:
   docker-lint-check:
     uses: ./.github/workflows/docker-linter.yml
 
-  docker-build-push-scan:
+  docker-build-push:
     needs: [code-quality-scan, secrets-leak-scan, code-dependency-scan, docker-lint-check]
-    uses: ./.github/workflows/build-push-scan.yml
+    uses: ./.github/workflows/docker-build-push.yml
+
+  docker-scan-images:
+    needs: docker-build-push
+    uses: ./.github/workflows/docker-scan-images.yml
 
   deploy-to-server:
-    needs: docker-build-push-scan
+    needs: docker-scan-images
     uses: ./.github/workflows/deploy-to-server.yml

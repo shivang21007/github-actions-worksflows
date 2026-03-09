@@ -1,0 +1,45 @@
+name: Scan Docker images (Trivy)
+
+on:
+  workflow_call:
+  
+  workflow_dispatch:
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Trivvy Scanner
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/github-actions-frontend:${{ github.sha }}
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          # trivyignore: ${{ github.workspace }}/.trivyignore
+
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Trivvy Scanner
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/github-actions-backend:${{ github.sha }}
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          # trivyignore: ${{ github.workspace }}/.trivyignore
+
+            
+
+      

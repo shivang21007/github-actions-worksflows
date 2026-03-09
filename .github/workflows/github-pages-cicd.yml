@@ -1,10 +1,10 @@
-name: Portfolio
+name: Deploy on GitHub Pages
 
 on:
     push:
         branches: [main]
         paths:
-          - '*.html'
+          - 'site/*.html'
     workflow_dispatch:
 
 permissions:
@@ -14,9 +14,9 @@ permissions:
 
 jobs:
     deploy:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-latest 
 
-        environment:
+        env:
             name: github-pages
             url: ${{ steps.deployment.outputs.page_url }} 
 
@@ -37,7 +37,7 @@ jobs:
             - name: Upload static files
               uses: actions/upload-pages-artifact@v4
               with:
-                path: "."
+                path: "./site"
             
             # Make page Live
             # STEP 4

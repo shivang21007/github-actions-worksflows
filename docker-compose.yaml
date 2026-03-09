@@ -1,0 +1,28 @@
+services:
+  frontend:
+    image: ${FRONTEND_IMAGE_NAME}
+    # build:
+    #   context: ./frontend
+    #   dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  backend:
+    image: ${BACKEND_IMAGE_NAME}
+    # build:
+    #   context: ./backend
+    #   dockerfile: Dockerfile
+    container_name: backend
+    networks:
+      - app-network
+    environment:
+      - PORT=8000
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,61 @@
+name: Docker Build, Scan & Push
+
+on:
+  workflow_call:
+  
+  workflow_dispatch:
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker Build & Push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/github-actions-frontend:${{ github.sha }}
+
+      - name: Scan Docker Image
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          image-ref: ${{ vars.DOCKERHUB_USERNAME }}/github-actions-frontend:${{ github.sha }}
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          # trivyignore: ${{ github.workspace }}/.trivyignore
+
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker Build & Push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/github-actions-backend:${{ github.sha }}
+
+      - name: Scan Docker Image
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          image-ref: ${{ vars.DOCKERHUB_USERNAME }}/github-actions-backend:${{ github.sha }}
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          # trivyignore: ${{ github.workspace }}/.trivyignore

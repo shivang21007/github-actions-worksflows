@@ -1,0 +1,26 @@
+# Scan the Dockerfile for issues & CVEs
+name: Docker Linter
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  hadolint:
+    name: Run Hadolint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Lint Frontend Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: frontend/Dockerfile
+          ignore: DL3018,DL3008
+
+      - name: Lint Backend Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: backend/Dockerfile
+          ignore: DL3018,DL3008

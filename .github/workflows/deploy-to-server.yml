@@ -20,7 +20,7 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_SSH_PRIVATE_KEY }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
-          source: "./docker-compose.yml"
+          source: "./docker-compose.yaml"
           target: "~/.deploy/${{github.repository}}/"
 
       - name: Deploy via SSH
@@ -31,7 +31,7 @@ jobs:
           key: ${{ secrets.REMOTE_SSH_PRIVATE_KEY }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
-            echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login ghcr.io -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+            echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
             export FRONTEND_IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/github-actions-frontend:${{ github.sha }}
             export BACKEND_IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/github-actions-backend:${{ github.sha }}
             cd ~/.deploy/${{github.repository}}/

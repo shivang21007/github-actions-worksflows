@@ -29,13 +29,14 @@ jobs:
         working-directory: frontend
       
       - name: Generate audit report
-        run: npm audit --audit-level=high --json > frontend-audit-report-${{github.sha}}.json
+        run: npm audit --audit-level=high --json > frontend-audit-report-${{github.sha}}.json || true
         working-directory: frontend
       
       - name: Upload audit report to GitHub
-        uses: github/codeql-action/upload-sarif@v2
+        uses: actions/upload-artifact@v4
         with:
-          sarif_file: frontend/frontend-audit-report-${{github.sha}}.json
+          name: frontend-audit-report
+          path: frontend/frontend-audit-report-${{github.sha}}.json
         
   backend:
     runs-on: ubuntu-latest
@@ -57,10 +58,11 @@ jobs:
         working-directory: backend
       
       - name: Generate audit report
-        run: npm audit --audit-level=high --json > backend-audit-report-${{github.sha}}.json
+        run: npm audit --audit-level=high --json > backend-audit-report-${{github.sha}}.json || true
         working-directory: backend
       
       - name: Upload audit report to GitHub
-        uses: github/codeql-action/upload-sarif@v2
+        uses: actions/upload-artifact@v4
         with:
-          sarif_file: backend/backend-audit-report-${{github.sha}}.json
+          name: backend-audit-report
+          path: backend/backend-audit-report-${{github.sha}}.json

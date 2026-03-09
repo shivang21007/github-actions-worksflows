@@ -1,0 +1,66 @@
+# packages - issues ya vulnerabilities (scan)
+# npm audit 
+
+name: vulnerabilities Scan
+
+on:
+  workflow_call:
+
+  workflow_dispatch:
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
+      - name: Install dependencies
+        run: npm install
+        working-directory: frontend
+      
+      - name: Run npm audit
+        run: npm audit
+        working-directory: frontend
+      
+      - name: Generate audit report
+        run: npm audit --audit-level=high --json > frontend-audit-report-${{github.sha}}.json
+        working-directory: frontend
+      
+      - name: Upload audit report to GitHub
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: frontend/frontend-audit-report-${{github.sha}}.json
+        
+    backend:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+
+        - name: Setup Node.js
+          uses: actions/setup-node@v4
+          with:
+            node-version: 20
+        
+        - name: Install dependencies
+          run: npm install
+          working-directory: backend
+        
+        - name: Run npm audit
+          run: npm audit
+          working-directory: backend
+        
+        - name: Generate audit report
+          run: npm audit --audit-level=high --json > backend-audit-report-${{github.sha}}.json
+          working-directory: backend
+        
+        - name: Upload audit report to GitHub
+          uses: github/codeql-action/upload-sarif@v2
+          with:
+            sarif_file: backend/backend-audit-report-${{github.sha}}.json

@@ -23,6 +23,9 @@ jobs:
           context: ./frontend
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/github-actions-frontend:${{ github.sha }}
+          build-args: |
+            VITE_GITHUB_SHA=${{ github.sha }}
+            VITE_API_URL=/api
 
   backend:
     runs-on: ubuntu-latest

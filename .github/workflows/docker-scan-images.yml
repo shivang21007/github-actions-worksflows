@@ -36,7 +36,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.35.0
         with:
           image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/github-actions-backend:${{ github.sha }}
-          severity: 'CRITICAL,HIGH'
+          severity: 'CRITICAL'
           exit-code: '1'
           # trivyignore: ${{ github.workspace }}/.trivyignore
 

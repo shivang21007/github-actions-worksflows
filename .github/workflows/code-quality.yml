@@ -6,13 +6,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  code-quality:
+  frontend:
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         node-version: ["20", "22", "24"]
-        project: ["frontend", "backend"]
 
     steps:
        - name: checkout code
@@ -22,6 +21,9 @@ jobs:
          uses: actions/setup-node@v4
          with:
            node-version: ${{ matrix.node-version }}
+
+       - name: checkout directory
+         run: cd frontend
            
        - name: install dependencies
          run: npm install
@@ -41,3 +43,40 @@ jobs:
          with:
            sarif_file: snyk.sarif
 
+  backend:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        node-version: ["20", "22", "24"]
+
+    steps:
+       - name: checkout code
+         uses: actions/checkout@v4
+
+       - name: setup node v${{ matrix.node-version }}
+         uses: actions/setup-node@v4
+         with:
+           node-version: ${{ matrix.node-version }}
+           
+       - name: checkout directory
+         run: cd backend
+           
+       - name: install dependencies
+         run: npm install
+
+       - name: run linter
+         run: npm run lint
+
+       - name: Run Snyk Code (SAST) and generate SARIF
+         uses: snyk/actions/node@master
+         env:
+           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+         with:
+           args: code test --severity-threshold=high --sarif-file-output=snyk.sarif
+
+       - name: Upload SARIF report to GitHub
+         uses: github/codeql-action/upload-sarif@v2
+         with:
+           sarif_file: snyk.sarif
+    

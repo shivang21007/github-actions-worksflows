@@ -35,5 +35,4 @@ jobs:
             export FRONTEND_IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/github-actions-frontend:${{ github.sha }}
             export BACKEND_IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/github-actions-backend:${{ github.sha }}
             cd ~/.deploy/${{github.repository}}/
-            docker compose down
             docker compose up -d --pull always

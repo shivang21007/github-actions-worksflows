@@ -21,7 +21,7 @@ function App() {
     <div className="container">
       <header className="header">
         <h1>Shivang Gupta [DevSecOps Live Project]</h1>
-        <p className="subtitle">(Built • Tested • Linted • Deployed via GitHub Actions by CI-CD Pipeline)</p>
+        <p className="subtitle">(Built • Tested • Scaned • Deployed via GitHub Actions by CI-CD Pipeline)</p>
         <p className="subtitle">(Deployement SHA: { import.meta.env.VITE_GITHUB_SHA })</p>
       </header>
       

@@ -9,6 +9,8 @@ services:
       - "80:80"
     depends_on:
       - backend
+    volumes:
+      - ./nginx-logs:/var/log/nginx
     networks:
       - app-network
 

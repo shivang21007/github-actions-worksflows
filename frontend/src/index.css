@@ -27,6 +27,8 @@ body {
   width: 100%;
   margin: 0 auto;
   padding: 4rem 2rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .header {
@@ -56,15 +58,58 @@ body {
   gap: 1.5rem;
 }
 
+/* — Tablet breakpoint — */
 @media (max-width: 1024px) {
+  .container {
+    padding: 3rem 1.5rem;
+  }
+
+  .header {
+    margin-bottom: 3rem;
+  }
+
+  .header h1 {
+    font-size: 2.5rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
   .grid-container {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
+/* — Mobile breakpoint — */
 @media (max-width: 640px) {
+  .container {
+    padding: 2rem 1rem;
+  }
+
+  .header {
+    margin-bottom: 2rem;
+  }
+
+  .header h1 {
+    font-size: 1.75rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
   .grid-container {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .card {
+    padding: 1.25rem;
+  }
+
+  .card h3 {
+    font-size: 1.25rem;
   }
 }
 
